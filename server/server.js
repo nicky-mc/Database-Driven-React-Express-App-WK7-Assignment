@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const { Pool } = require("pg");
+const multer = require("multer");
+const path = require("path");
 require("dotenv").config();
 
 const app = express();
@@ -8,14 +10,27 @@ const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static("uploads")); // Serve uploaded files
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname)); // Append extension
+  },
+});
+
+const upload = multer({ storage: storage });
+
 // User registration
 app.post("/api/register", async (req, res) => {
-  const { username, email } = req.body; // No password for simplicity
+  const { username, email } = req.body;
   try {
     const result = await pool.query(
       "INSERT INTO users (username, email) VALUES ($1, $2) RETURNING *",
@@ -30,7 +45,7 @@ app.post("/api/register", async (req, res) => {
 
 // User login (simple)
 app.post("/api/login", async (req, res) => {
-  const { email } = req.body; // No password for simplicity
+  const { email } = req.body;
   try {
     const user = await pool.query("SELECT * FROM users WHERE email = $1", [
       email,
@@ -59,12 +74,13 @@ app.get("/api/posts", async (req, res) => {
   }
 });
 
-app.post("/api/posts", async (req, res) => {
-  const { title, content, user_id } = req.body; // Assuming user_id is sent directly
+app.post("/api/posts", upload.single("image"), async (req, res) => {
+  const { title, content, user_id } = req.body;
+  const image_url = req.file ? req.file.path : null; // Get the uploaded image path
   try {
     const result = await pool.query(
-      "INSERT INTO posts (title, content, user_id) VALUES ($1, $2, $3) RETURNING *",
-      [title, content, user_id]
+      "INSERT INTO posts (title, content, image_url, user_id) VALUES ($1, $2, $3, $4) RETURNING *",
+      [title, content, image_url, user_id]
     );
     res.status(201).json(result.rows[0]);
   } catch (error) {
@@ -117,7 +133,7 @@ app.get("/api/posts/:id/comments", async (req, res) => {
 // Create a new comment
 app.post("/api/posts/:id/comments", async (req, res) => {
   const { id } = req.params;
-  const { user_id, content } = req.body; // Assuming user_id is sent directly
+  const { user_id, content } = req.body;
   try {
     const result = await pool.query(
       "INSERT INTO comments (post_id, user_id, content) VALUES ($1, $2, $3) RETURNING *",
