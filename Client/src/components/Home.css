@@ -1,0 +1,26 @@
+.home-container {
+  padding: 20px;
+}
+
+.home-container ul {
+  list-style-type: none; /* Remove bullet points from list */
+  padding: 0; /* Remove padding */
+}
+
+.home-container li {
+  background: white; /* White background for each post */
+  border-radius: 5px; /* Rounded corners */
+  padding: 15px; /* Padding inside each post */
+  margin: 10px 0; /* Margin between posts */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Light shadow for depth */
+}
+
+.home-container h2 {
+  margin: 0; /* Remove default margin */
+  font-size: 1.5em; /* Font size for post titles */
+}
+
+.home-container img {
+  max-width: 100%; /* Responsive image */
+  height: auto; /* Maintain aspect ratio */
+}
