@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { fetchPostById, deletePost } from "../api"; // Import fetchPostById and deletePost functions
 import "./PostDetail.css";
 
 const PostDetail = () => {
@@ -7,17 +8,22 @@ const PostDetail = () => {
   const [post, setPost] = useState(null);
 
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/api/posts/${id}`)
-      .then((response) => response.json())
-      .then((data) => setPost(data))
-      .catch((error) => console.error("Error fetching post:", error));
+    const getPost = async () => {
+      try {
+        const data = await fetchPostById(id);
+        setPost(data);
+      } catch (error) {
+        console.error("Error fetching post:", error);
+      }
+    };
+    getPost();
   }, [id]);
 
   const handleDelete = async () => {
-    await fetch(`${process.env.REACT_APP_API_URL}/api/posts/${id}`, {
-      method: "DELETE",
-    });
-    window.location.href = "/";
+    if (window.confirm("Are you sure you want to delete this post?")) {
+      await deletePost(id);
+      window.location.href = "/";
+    }
   };
 
   if (!post) {

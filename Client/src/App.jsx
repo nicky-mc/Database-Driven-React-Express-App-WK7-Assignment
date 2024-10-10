@@ -1,10 +1,10 @@
 import "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./components/Home";
-import CreatePost from "./components/CreatePost";
-import PostDetail from "./components/PostDetail";
-import Register from "./components/Register";
-import Login from "./components/Login";
+import Home from "./components/Home.jsx";
+import CreatePost from "./components/CreatePost.jsx";
+import PostDetail from "./components/PostDetail.jsx";
+import Register from "./components/Register.jsx";
+import Login from "./components/Login.jsx";
 import "./App.css";
 
 const App = () => {
@@ -20,4 +20,5 @@ const App = () => {
     </Router>
   );
 };
+
 export default App;

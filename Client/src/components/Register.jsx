@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { registerUser } from "../api"; // Import registerUser function
 import "./Register.css";
 
 const Register = () => {
@@ -10,22 +11,11 @@ const Register = () => {
     e.preventDefault();
     setError("");
 
-    const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/api/register`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, email }),
-      }
-    );
-    const data = await response.json();
-
-    if (response.ok) {
-      alert("Registration successful!");
-    } else {
-      setError(data.error);
+    try {
+      const result = await registerUser(username, email);
+      alert("Registration successful! User ID: " + result.id);
+    } catch (error) {
+      setError(error.message);
     }
   };
 

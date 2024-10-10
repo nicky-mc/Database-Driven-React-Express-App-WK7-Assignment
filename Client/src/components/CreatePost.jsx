@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPost } from "../api"; // Import createPost function
 import { useNavigate } from "react-router-dom";
 import "./CreatePost.css";
 
@@ -12,17 +13,13 @@ const CreatePost = () => {
     e.preventDefault();
     const user_id = localStorage.getItem("user_id");
 
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("content", content);
-    formData.append("image", image);
-    formData.append("user_id", user_id);
-
-    await fetch(`${process.env.REACT_APP_API_URL}/api/posts`, {
-      method: "POST",
-      body: formData,
-    });
-    navigate("/");
+    try {
+      await createPost({ title, content, image, user_id });
+      navigate("/");
+    } catch (error) {
+      console.error("Error:", error);
+      alert("An error occurred while creating the post. Please try again.");
+    }
   };
 
   return (
@@ -52,4 +49,5 @@ const CreatePost = () => {
     </form>
   );
 };
+
 export default CreatePost;

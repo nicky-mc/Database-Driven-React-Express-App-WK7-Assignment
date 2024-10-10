@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { loginUser } from "../api"; // Import loginUser function
 import "./Login.css";
 
 const Login = () => {
@@ -9,20 +10,12 @@ const Login = () => {
     e.preventDefault();
     setError("");
 
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email }),
-    });
-    const data = await response.json();
-
-    if (response.ok) {
-      localStorage.setItem("user_id", data.id);
+    try {
+      const result = await loginUser(email);
+      localStorage.setItem("user_id", result.id);
       alert("Login successful!");
-    } else {
-      setError(data.error);
+    } catch (error) {
+      setError(error.message);
     }
   };
 
