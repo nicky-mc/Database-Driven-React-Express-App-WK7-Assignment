@@ -2,24 +2,57 @@
   display: flex; /* Use flexbox for layout */
   flex-direction: column; /* Stack elements vertically */
   padding: 20px; /* Padding around the form */
-  background: white; /* White background for the form */
-  border-radius: 5px; /* Rounded corners */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Light shadow for depth */
+  background: #f9f9f9; /* Light grey background for the form */
+  border-radius: 10px; /* More rounded corners */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Slightly stronger shadow for depth */
+  max-width: 600px; /* Limit the width of the form */
+  margin: 0 auto; /* Center the form horizontally */
 }
 
 .create-post-form input,
 .create-post-form textarea {
-  margin-bottom: 10px; /* Margin below each input */
-  padding: 10px; /* Padding inside inputs */
-  border: 1px solid #ccc; /* Light border */
-  border-radius: 4px; /* Rounded corners */
+  margin-bottom: 15px; /* Increased margin below each input */
+  padding: 12px; /* Increased padding inside inputs */
+  border: 1px solid #ddd; /* Lighter border */
+  border-radius: 6px; /* More rounded corners */
+  font-size: 16px; /* Larger font size */
+  transition: border-color 0.3s; /* Smooth transition for border color */
+}
+
+.create-post-form input:focus,
+.create-post-form textarea:focus {
+  border-color: #007bff; /* Blue border on focus */
+  outline: none; /* Remove default outline */
 }
 
 .create-post-form textarea {
   resize: vertical; /* Allow vertical resizing only */
+  min-height: 150px; /* Minimum height for textarea */
 }
 
 .create-post-form img {
   max-width: 100%; /* Responsive image preview */
   height: auto; /* Maintain aspect ratio */
+  border-radius: 6px; /* Rounded corners for images */
+  margin-bottom: 15px; /* Margin below image */
+}
+
+.create-post-form button {
+  padding: 12px 20px; /* Padding for button */
+  background-color: #007bff; /* Blue background */
+  color: white; /* White text */
+  border: none; /* Remove border */
+  border-radius: 6px; /* Rounded corners */
+  font-size: 16px; /* Larger font size */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s; /* Smooth transition for background color */
+}
+
+.create-post-form button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+.error {
+  color: red; /* Red color for error messages */
+  margin-bottom: 15px; /* Margin below error message */
 }

@@ -1,52 +1,67 @@
 import { useState } from "react";
-import { createPost } from "../api"; // Import createPost function
 import { useNavigate } from "react-router-dom";
-import "./CreatePost.css";
+import { createPost } from "../services/api"; // Ensure this function is correctly implemented in the api file
+import "../components/CreatePost.css";
 
 const CreatePost = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [image, setImage] = useState(null);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const user_id = localStorage.getItem("user_id");
-
     try {
-      await createPost({ title, content, image, user_id });
-      navigate("/");
-    } catch (error) {
-      console.error("Error:", error);
-      alert("An error occurred while creating the post. Please try again.");
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("content", content);
+      if (image) {
+        const validImageTypes = ["image/jpeg", "image/png", "image/gif"];
+        if (!validImageTypes.includes(image.type)) {
+          setError(
+            "Invalid image type. Please upload a JPEG, PNG, or GIF file."
+          );
+          return;
+        }
+        formData.append("image", image);
+      }
+
+      await createPost(formData);
+      setTitle("");
+      setContent("");
+      setImage(null);
+      setError(null);
+      navigate("/", { replace: true });
+    } catch (err) {
+      console.error(err);
+      setError(`Failed to create post. Error: ${err.message}`);
     }
   };
 
   return (
-    <form className="create-post-form" onSubmit={handleSubmit}>
-      <input
-        type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="Title"
-        required
-      />
-      <textarea
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        placeholder="Content"
-        required
-      />
-      <input
-        type="file"
-        accept="image/*"
-        onChange={(e) => setImage(e.target.files[0])}
-      />
-      {image && <img src={URL.createObjectURL(image)} alt="Preview" />}
-      <button type="submit" className="button">
-        Create Post
-      </button>
-    </form>
+    <div className="create-post-form">
+      <h2>Create New Post</h2>
+      {error && <div className="error">{error}</div>}
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+        />
+        <textarea
+          placeholder="Content"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          required
+        />
+        <input type="file" onChange={(e) => setImage(e.target.files[0])} />
+        {image && <img src={URL.createObjectURL(image)} alt="Preview" />}
+        <button type="submit">Submit</button>
+      </form>
+    </div>
   );
 };
 

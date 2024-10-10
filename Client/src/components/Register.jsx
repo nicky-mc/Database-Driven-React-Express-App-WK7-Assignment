@@ -1,45 +1,47 @@
 import { useState } from "react";
-import { registerUser } from "../api"; // Import registerUser function
+import { useNavigate } from "react-router-dom";
+import { register } from "../services/api";
 import "./Register.css";
 
 const Register = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-
     try {
-      const result = await registerUser(username, email);
-      alert("Registration successful! User ID: " + result.id);
+      await register({ username, email });
+      navigate("/login");
     } catch (error) {
-      setError(error.message);
+      console.error("Error registering:", error);
+      setError("Registration failed. Please try again.");
     }
   };
 
   return (
-    <form className="register-form" onSubmit={handleSubmit}>
-      <input
-        type="text"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        placeholder="Username"
-        required
-      />
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Email"
-        required
-      />
-      <button type="submit" className="button">
-        Register
-      </button>
-      {error && <p>{error}</p>}
-    </form>
+    <div className="register">
+      <h2>Register</h2>
+      {error && <div className="error">{error}</div>}
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Username"
+          required
+        />
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          required
+        />
+        <button type="submit">Register</button>
+      </form>
+    </div>
   );
 };
 

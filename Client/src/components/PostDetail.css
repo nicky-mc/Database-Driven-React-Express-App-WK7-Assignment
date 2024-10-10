@@ -1,20 +1,97 @@
 .post-detail {
-  padding: 20px; /* Padding around the post detail */
-  background: white; /* White background for the post detail */
-  border-radius: 5px; /* Rounded corners */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Light shadow for depth */
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
 }
 
 .post-detail h1 {
-  margin: 0; /* Remove default margin */
-  font-size: 2em; /* Font size for title */
+  font-size: 2.5em;
+  margin-bottom: 20px;
+  color: #333;
 }
 
 .post-detail img {
-  max-width: 100%; /* Responsive image */
-  height: auto; /* Maintain aspect ratio */
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+
+.post-detail p {
+  font-size: 1.2em;
+  color: #555;
+  margin-bottom: 20px;
 }
 
 .post-detail button {
-  margin-top: 10px; /* Margin above the button */
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1em;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.post-detail button:hover {
+  background-color: #ff1a1a;
+}
+
+.comments-section {
+  margin-top: 40px;
+}
+
+.comments-section h2 {
+  font-size: 2em;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.comments-section form {
+  margin-bottom: 20px;
+}
+
+.comments-section textarea {
+  width: 100%;
+  height: 100px;
+  padding: 10px;
+  font-size: 1em;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.comments-section button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1em;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.comments-section button:hover {
+  background-color: #45a049;
+}
+
+.comments-section ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.comments-section li {
+  background-color: #f9f9f9;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.comments-section li p {
+  margin: 0;
+  color: #555;
 }
