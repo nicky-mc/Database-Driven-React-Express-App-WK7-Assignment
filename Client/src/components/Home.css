@@ -8,8 +8,8 @@
 }
 
 .home-container li {
-  background: white; /* White background for each post */
-  border-radius: 5px; /* Rounded corners */
+  background: rgb(162, 216, 233); /* White background for each post */
+  border-radius: 25px; /* Rounded corners */
   padding: 15px; /* Padding inside each post */
   margin: 10px 0; /* Margin between posts */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Light shadow for depth */
@@ -17,10 +17,20 @@
 
 .home-container h2 {
   margin: 0; /* Remove default margin */
-  font-size: 1.5em; /* Font size for post titles */
+  font-size: 3.5em; /* Font size for post titles */
+  color: gray; /* Color for post titles */
+  text-shadow: 2px 2px 4px #000000; /* Text shadow for post titles */
 }
 
 .home-container img {
   max-width: 100%; /* Responsive image */
   height: auto; /* Maintain aspect ratio */
+  border-radius: 25px; /* Rounded corners */
+}
+.home-container p {
+  margin: 10px 0; /* Margin above and below paragraphs */
+  font-size: 1.5em; /* Font size for post content */
+  font-family: Haettenschweiler;
+  color: rgb(239, 236, 236);
+  text-shadow: 2px 2px 4px #000000;
 }
