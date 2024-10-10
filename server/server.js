@@ -1,9 +1,11 @@
+// server.js
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import pg from "pg";
 import multer from "multer";
 import path from "path";
+import fs from "fs";
 
 dotenv.config();
 
@@ -15,17 +17,22 @@ app.use(cors());
 
 // Enable JSON parsing
 app.use(express.json());
-app.use("/uploads", express.static("uploads"));
 
 const { Pool } = pg;
 const pool = new Pool({
   connectionString: process.env.DB_URL,
 });
 
+// Ensure uploads directory exists
+const uploadsDir = path.join(process.cwd(), "uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {
-    cb(null, "uploads/");
+    cb(null, uploadsDir);
   },
   filename: (_req, file, cb) => {
     cb(null, Date.now() + path.extname(file.originalname));
@@ -33,6 +40,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
+app.use("/uploads", express.static(uploadsDir));
 
 // User registration
 app.post("/api/register", async (req, res) => {
@@ -97,7 +105,7 @@ app.get("/api/posts/:id", async (req, res) => {
 
 app.post("/api/posts", upload.single("image"), async (req, res) => {
   const { title, content, user_id } = req.body;
-  const image_url = req.file ? req.file.path : null;
+  const image_url = req.file ? `/uploads/${req.file.filename}` : null;
   try {
     const result = await pool.query(
       "INSERT INTO posts (title, content, image_url, user_id) VALUES ($1, $2, $3, $4) RETURNING *",

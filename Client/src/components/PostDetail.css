@@ -1,15 +1,40 @@
+:root {
+  --primary-color: #706767;
+  --secondary-color: #ffffff;
+  --background-color: #f4f4f4;
+  --font-family: "Arial", sans-serif;
+  --heading-font-family: "Haettenschweiler", sans-serif;
+  --shadow-color: rgba(0, 0, 0, 0.2);
+}
+
 .post-detail {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
-  font-family: Arial, sans-serif;
+  font-family: var(--font-family);
   line-height: 1.6;
+  background-color: var(--background-color);
+  border-radius: 10px;
+  box-shadow: 0 4px 8px var(--shadow-color);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.post-detail:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px var(--shadow-color);
 }
 
 .post-detail h1 {
   font-size: 2.5em;
   margin-bottom: 20px;
-  color: #333;
+  font-family: var(--heading-font-family);
+  color: var(--primary-color);
+  text-shadow: 2px 2px 2px #000000;
+  transition: color 0.3s ease;
+}
+
+.post-detail h1:hover {
+  color: var(--secondary-color);
 }
 
 .post-detail img {
@@ -17,27 +42,12 @@
   height: auto;
   margin-bottom: 20px;
   border-radius: 10px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.post-detail p {
-  font-size: 1.2em;
-  color: #555;
-  margin-bottom: 20px;
-}
-
-.post-detail button {
-  background-color: #ff4d4d;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  font-size: 1em;
-  cursor: pointer;
-  border-radius: 5px;
-  margin-bottom: 20px;
-}
-
-.post-detail button:hover {
-  background-color: #ff1a1a;
+.post-detail img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px var(--shadow-color);
 }
 
 .comments-section {
@@ -47,51 +57,73 @@
 .comments-section h2 {
   font-size: 2em;
   margin-bottom: 20px;
-  color: #333;
+  color: var(--primary-color);
 }
 
 .comments-section form {
+  display: flex;
+  flex-direction: column;
   margin-bottom: 20px;
 }
 
 .comments-section textarea {
-  width: 100%;
-  height: 100px;
   padding: 10px;
+  font-family: var(--font-family);
   font-size: 1em;
-  border: 1px solid #ccc;
+  border: 1px solid var(--primary-color);
   border-radius: 5px;
-  margin-bottom: 10px;
+  resize: vertical;
+  min-height: 100px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.comments-section textarea:focus {
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 5px var(--secondary-color);
+  outline: none;
 }
 
 .comments-section button {
-  background-color: #4caf50;
-  color: white;
-  border: none;
+  align-self: flex-end;
   padding: 10px 20px;
   font-size: 1em;
-  cursor: pointer;
+  color: var(--secondary-color);
+  background-color: var(--primary-color);
+  border: none;
   border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .comments-section button:hover {
-  background-color: #45a049;
+  background-color: var(--secondary-color);
+  color: var(--primary-color);
+  transform: translateY(-2px);
 }
 
 .comments-section ul {
-  list-style-type: none;
+  list-style: none;
   padding: 0;
 }
 
 .comments-section li {
-  background-color: #f9f9f9;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  padding: 15px;
   margin-bottom: 10px;
+  border-radius: 5px;
+  background-color: var(--background-color);
+  box-shadow: 0 2px 4px var(--shadow-color);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.comments-section li:nth-child(odd) {
+  background-color: #e9e9e9;
+}
+
+.comments-section li:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px var(--shadow-color);
 }
 
 .comments-section li p {
   margin: 0;
-  color: #555;
 }

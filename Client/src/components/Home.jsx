@@ -30,7 +30,7 @@ const Home = () => {
 
   return (
     <div className="container home-container">
-      <h1>Blog Posts</h1>
+      <h1>The Mind scape of Nicky</h1>
       <nav>
         <ul>
           <li>

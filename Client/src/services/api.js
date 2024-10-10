@@ -14,7 +14,11 @@ export const createPost = async (formData) => {
     body: formData,
   });
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    const errorText = await response.text();
+    console.error("Error response from server:", errorText);
+    throw new Error(
+      `HTTP error! status: ${response.status}, message: ${errorText}`
+    );
   }
   return await response.json();
 };
