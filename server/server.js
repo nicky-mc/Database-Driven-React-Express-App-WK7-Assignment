@@ -1,146 +1,276 @@
-// server.js
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import pg from "pg";
 import multer from "multer";
 import path from "path";
-import fs from "fs";
+import { fileURLToPath } from "url";
+import dotenv from "dotenv";
 
 dotenv.config();
-
-const app = express();
-const port = process.env.PORT || 5001;
-
-// Enable CORS
-app.use(cors());
-
-// Enable JSON parsing
-app.use(express.json());
 
 const { Pool } = pg;
 const pool = new Pool({
   connectionString: process.env.DB_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
 
-// Ensure uploads directory exists
-const uploadsDir = path.join(process.cwd(), "uploads");
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
+const app = express();
+const port = process.env.PORT || 5001;
 
-// Configure multer for file uploads
+app.use(cors());
+app.use(express.json());
+
+// Multer setup for file uploads
 const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, uploadsDir);
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
   },
-  filename: (_req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
   },
 });
+const upload = multer({ storage });
 
-const upload = multer({ storage: storage });
-app.use("/uploads", express.static(uploadsDir));
+// Get __dirname equivalent in ES module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// User registration
-app.post("/api/register", async (req, res) => {
-  const { username, email } = req.body;
+// Serve static files from the "uploads" directory
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// Fetch all posts
+app.get("/api/posts", async (req, res) => {
   try {
     const result = await pool.query(
-      "INSERT INTO users (username, email) VALUES ($1, $2) RETURNING *",
-      [username, email]
-    );
-    res.status(201).json(result.rows[0]);
-  } catch (error) {
-    console.error("Error creating user:", error);
-    res.status(500).json({ error: "Error creating user" });
-  }
-});
-
-// User login (simple)
-app.post("/api/login", async (req, res) => {
-  const { email } = req.body;
-  try {
-    const user = await pool.query("SELECT * FROM users WHERE email = $1", [
-      email,
-    ]);
-    if (user.rowCount > 0) {
-      res.json(user.rows[0]);
-    } else {
-      res.status(401).json({ error: "Invalid credentials" });
-    }
-  } catch (error) {
-    console.error("Error logging in:", error);
-    res.status(500).json({ error: "Error logging in" });
-  }
-});
-
-// CRUD for posts
-app.get("/api/posts", async (_req, res) => {
-  try {
-    const result = await pool.query(
-      "SELECT * FROM posts ORDER BY created_at DESC"
+      `SELECT posts.*, categories.name as category_name, 
+      ARRAY_AGG(DISTINCT tags.name) as tags
+      FROM posts 
+      JOIN categories ON posts.category_id = categories.id
+      LEFT JOIN post_tags ON posts.id = post_tags.post_id
+      LEFT JOIN tags ON post_tags.tag_id = tags.id
+      GROUP BY posts.id, categories.name
+      ORDER BY posts.created_at DESC`
     );
     res.json(result.rows);
   } catch (error) {
-    console.error("Error fetching posts:", error);
+    console.error("Error fetching posts:", error.message);
     res.status(500).json({ error: "Error fetching posts" });
   }
 });
 
+// Fetch single post
 app.get("/api/posts/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await pool.query("SELECT * FROM posts WHERE id = $1", [id]);
-    if (result.rows.length > 0) {
-      res.json(result.rows[0]);
-    } else {
-      res.status(404).json({ error: "Post not found" });
+    const result = await pool.query(
+      `SELECT posts.*, categories.name as category_name, 
+      ARRAY_AGG(DISTINCT tags.name) as tags
+      FROM posts 
+      JOIN categories ON posts.category_id = categories.id
+      LEFT JOIN post_tags ON posts.id = post_tags.post_id
+      LEFT JOIN tags ON post_tags.tag_id = tags.id
+      WHERE posts.id = $1
+      GROUP BY posts.id, categories.name`,
+      [id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Post not found" });
     }
+    res.json(result.rows[0]);
   } catch (error) {
-    console.error("Error fetching post:", error);
+    console.error("Error fetching post:", error.message);
     res.status(500).json({ error: "Error fetching post" });
   }
 });
 
+// Create a new post
 app.post("/api/posts", upload.single("image"), async (req, res) => {
-  const { title, content, user_id } = req.body;
-  const image_url = req.file ? `/uploads/${req.file.filename}` : null;
+  const { title, content, category, tags } = req.body;
+  const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+
   try {
-    const result = await pool.query(
-      "INSERT INTO posts (title, content, image_url, user_id) VALUES ($1, $2, $3, $4) RETURNING *",
-      [title, content, image_url, user_id]
+    // Start a transaction
+    await pool.query("BEGIN");
+
+    // Insert the post
+    const postResult = await pool.query(
+      "INSERT INTO posts (title, content, category_id, image_url) VALUES ($1, $2, $3, $4) RETURNING *",
+      [title, content, category, imageUrl]
     );
-    res.status(201).json(result.rows[0]);
+    const newPost = postResult.rows[0];
+
+    // Insert tags
+    if (tags && tags.length > 0) {
+      const tagValues = tags.map((tag) => `('${tag}')`).join(",");
+      await pool.query(`
+        INSERT INTO tags (name)
+        VALUES ${tagValues}
+        ON CONFLICT (name) DO NOTHING
+      `);
+
+      // Get tag IDs
+      const tagResult = await pool.query(
+        "SELECT id FROM tags WHERE name = ANY($1)",
+        [tags]
+      );
+      const tagIds = tagResult.rows.map((row) => row.id);
+
+      // Insert post_tags
+      const postTagValues = tagIds
+        .map((tagId) => `(${newPost.id}, ${tagId})`)
+        .join(",");
+      await pool.query(`
+        INSERT INTO post_tags (post_id, tag_id)
+        VALUES ${postTagValues}
+      `);
+    }
+
+    // Commit the transaction
+    await pool.query("COMMIT");
+
+    res.status(201).json(newPost);
   } catch (error) {
-    console.error("Error creating post:", error);
+    await pool.query("ROLLBACK");
+    console.error("Error creating post:", error.message);
     res.status(500).json({ error: "Error creating post" });
   }
 });
 
-app.put("/api/posts/:id", async (req, res) => {
-  const { id } = req.params;
-  const { title, content } = req.body;
-  try {
-    const result = await pool.query(
-      "UPDATE posts SET title = $1, content = $2 WHERE id = $3 RETURNING *",
-      [title, content, id]
-    );
-    res.json(result.rows[0]);
-  } catch (error) {
-    console.error("Error updating post:", error);
-    res.status(500).json({ error: "Error updating post" });
-  }
-});
-
+// Delete a post
 app.delete("/api/posts/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    await pool.query("DELETE FROM posts WHERE id = $1", [id]);
-    res.sendStatus(204);
+    // Start a transaction
+    await pool.query("BEGIN");
+
+    // Delete associated comments
+    await pool.query("DELETE FROM comments WHERE post_id = $1", [id]);
+
+    // Delete associated post_tags
+    await pool.query("DELETE FROM post_tags WHERE post_id = $1", [id]);
+
+    // Delete the post
+    const result = await pool.query(
+      "DELETE FROM posts WHERE id = $1 RETURNING *",
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      await pool.query("ROLLBACK");
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    // Commit the transaction
+    await pool.query("COMMIT");
+
+    res
+      .status(200)
+      .json({ message: "Post and associated data deleted successfully" });
   } catch (error) {
-    console.error("Error deleting post:", error);
+    await pool.query("ROLLBACK");
+    console.error("Error deleting post:", error.message);
     res.status(500).json({ error: "Error deleting post" });
+  }
+});
+
+// Fetch categories
+app.get("/api/categories", async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM categories ORDER BY name ASC"
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error fetching categories:", error.message);
+    res.status(500).json({ error: "Error fetching categories" });
+  }
+});
+
+// Fetch tags
+app.get("/api/tags", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM tags ORDER BY name ASC");
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error fetching tags:", error.message);
+    res.status(500).json({ error: "Error fetching tags" });
+  }
+});
+
+// Search posts
+app.get("/api/search", async (req, res) => {
+  const { query, category, tag } = req.query;
+  try {
+    let sqlQuery = `
+      SELECT DISTINCT posts.*, categories.name as category_name,
+      ARRAY_AGG(DISTINCT tags.name) as tags
+      FROM posts 
+      JOIN categories ON posts.category_id = categories.id
+      LEFT JOIN post_tags ON posts.id = post_tags.post_id
+      LEFT JOIN tags ON post_tags.tag_id = tags.id
+      WHERE 1=1
+    `;
+    const queryParams = [];
+
+    if (query) {
+      queryParams.push(`%${query}%`);
+      sqlQuery += ` AND (posts.title ILIKE $${queryParams.length} OR posts.content ILIKE $${queryParams.length})`;
+    }
+
+    if (category) {
+      queryParams.push(category);
+      sqlQuery += ` AND categories.name = $${queryParams.length}`;
+    }
+
+    if (tag) {
+      queryParams.push(tag);
+      sqlQuery += ` AND tags.name = $${queryParams.length}`;
+    }
+
+    sqlQuery +=
+      " GROUP BY posts.id, categories.name ORDER BY posts.created_at DESC";
+
+    const result = await pool.query(sqlQuery, queryParams);
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error searching posts:", error.message);
+    res.status(500).json({ error: "Error searching posts" });
+  }
+});
+
+// Like a post
+app.post("/api/posts/:id/like", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query(
+      "UPDATE posts SET likes = likes + 1 WHERE id = $1 RETURNING likes",
+      [id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+    res.status(200).json({ likes: result.rows[0].likes });
+  } catch (error) {
+    console.error("Error liking post:", error.message);
+    res.status(500).json({ error: "Error liking post" });
+  }
+});
+
+// Add a comment
+app.post("/api/posts/:id/comments", async (req, res) => {
+  const { id } = req.params;
+  const { content } = req.body;
+  try {
+    const result = await pool.query(
+      "INSERT INTO comments (content, post_id) VALUES ($1, $2) RETURNING *",
+      [content, id]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error("Error adding comment:", error.message);
+    res.status(500).json({ error: "Error adding comment" });
   }
 });
 
@@ -154,27 +284,96 @@ app.get("/api/posts/:id/comments", async (req, res) => {
     );
     res.json(result.rows);
   } catch (error) {
-    console.error("Error fetching comments:", error);
+    console.error("Error fetching comments:", error.message);
     res.status(500).json({ error: "Error fetching comments" });
   }
 });
 
-// Create a new comment
-app.post("/api/posts/:id/comments", async (req, res) => {
+// Delete a comment
+app.delete("/api/comments/:id", async (req, res) => {
   const { id } = req.params;
-  const { user_id, content } = req.body;
   try {
     const result = await pool.query(
-      "INSERT INTO comments (post_id, user_id, content) VALUES ($1, $2, $3) RETURNING *",
-      [id, user_id, content]
+      "DELETE FROM comments WHERE id = $1 RETURNING *",
+      [id]
     );
-    res.status(201).json(result.rows[0]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Comment not found" });
+    }
+    res.status(200).json({ message: "Comment deleted successfully" });
   } catch (error) {
-    console.error("Error creating comment:", error);
-    res.status(500).json({ error: "Error creating comment" });
+    console.error("Error deleting comment:", error.message);
+    res.status(500).json({ error: "Error deleting comment" });
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+// Like a comment
+app.post("/api/comments/:id/like", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query(
+      "UPDATE comments SET likes = likes + 1 WHERE id = $1 RETURNING likes",
+      [id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Comment not found" });
+    }
+    res.status(200).json({ likes: result.rows[0].likes });
+  } catch (error) {
+    console.error("Error liking comment:", error.message);
+    res.status(500).json({ error: "Error liking comment" });
+  }
+});
+
+// Dislike a comment
+app.post("/api/comments/:id/dislike", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query(
+      "UPDATE comments SET dislikes = dislikes + 1 WHERE id = $1 RETURNING dislikes",
+      [id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Comment not found" });
+    }
+    res.status(200).json({ dislikes: result.rows[0].dislikes });
+  } catch (error) {
+    console.error("Error disliking comment:", error.message);
+    res.status(500).json({ error: "Error disliking comment" });
+  }
+});
+
+// Create a new category
+app.post("/api/categories", async (req, res) => {
+  const { name } = req.body;
+  try {
+    const result = await pool.query(
+      "INSERT INTO categories (name) VALUES ($1) RETURNING *",
+      [name]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error("Error creating category:", error.message);
+    res.status(500).json({ error: "Error creating category" });
+  }
+});
+
+// Create a new tag
+app.post("/api/tags", async (req, res) => {
+  const { name } = req.body;
+  try {
+    const result = await pool.query(
+      "INSERT INTO tags (name) VALUES ($1) RETURNING *",
+      [name]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error("Error creating tag:", error.message);
+    res.status(500).json({ error: "Error creating tag" });
+  }
+});
+
+const PORT = process.env.PORT || 5001;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

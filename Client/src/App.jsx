@@ -1,21 +1,21 @@
 import "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./components/Home";
-import CreatePost from "./components/CreatePost";
 import PostDetail from "./components/PostDetail";
-import Register from "./components/Register";
-import Login from "./components/Login";
+import CreatePost from "./components/CreatePost";
+import Navigation from "./components/Navigation";
 import "./App.css";
+
 const App = () => {
   return (
     <Router>
-      <div className="App">
+      <div className="app-container">
+        <Navigation />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/post/:id" element={<PostDetail />} />
           <Route path="/create" element={<CreatePost />} />
-          <Route path="/posts/:id" element={<PostDetail />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/posts/:categoryName" element={<Home />} />
         </Routes>
       </div>
     </Router>

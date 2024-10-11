@@ -1,71 +1,45 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Playfair+Display:wght@400;700&display=swap");
+
+:root {
+  --primary-color: #4a90e2;
+  --secondary-color: #f5f5f5;
+  --text-color: #333;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
 body {
-  font-family: Arial, sans-serif;
+  font-family: "Roboto", sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: var(--secondary-color);
   margin: 0;
   padding: 0;
-  background-color: #9f9898;
 }
 
-h1 {
-  text-align: center;
-  color: #b8b7b7;
-  margin: 20px 0;
-  text-shadow: 2px 2px 4px #000000;
-}
-
-a {
-  text-decoration: none;
-  color: #39628d;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-.container {
+.App {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
 }
 
-.button {
-  padding: 10px 15px;
-  background-color: #555555;
+h1,
+h2,
+h3 {
+  font-family: "Playfair Display", serif;
+  color: var(--primary-color);
+  text-shadow: 1px 1px 2px var(--shadow-color);
+}
+
+button {
+  background-color: var(--primary-color);
   color: white;
   border: none;
-  text-shadow: 2px 2px 4px #000000;
-  border-radius: 4px;
+  padding: 10px 20px;
+  border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s ease;
 }
 
-.button:hover {
-  background-color: #4ca1ae;
-}
-
-@media (max-width: 768px) {
-  h1 {
-    font-size: 1.5em;
-  }
-
-  .container {
-    padding: 10px;
-  }
-
-  .button {
-    width: 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  h1 {
-    font-size: 1.2em;
-  }
-
-  .container {
-    padding: 5px;
-  }
-
-  .button {
-    padding: 8px;
-  }
+button:hover {
+  background-color: darken(var(--primary-color), 10%);
 }

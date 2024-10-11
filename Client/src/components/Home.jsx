@@ -1,79 +1,129 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { fetchPosts } from "../services/api";
 import "./Home.css";
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [tags, setTags] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedTag, setSelectedTag] = useState("");
+
+  const baseURL = import.meta.env.VITE_API_URL || "http://localhost:5001";
 
   useEffect(() => {
-    const getPosts = async () => {
-      try {
-        setLoading(true);
-        const data = await fetchPosts();
-        setPosts(data);
-      } catch (error) {
-        console.error("Error fetching posts:", error);
-        setError("Failed to fetch posts. Please try again later.");
-      } finally {
-        setLoading(false);
+    fetchPosts();
+    fetchCategories();
+    fetchTags();
+  }, [baseURL]);
+
+  const fetchPosts = async (query = "", category = "", tag = "") => {
+    try {
+      let url = `${baseURL}/api/search?`;
+      if (query) url += `query=${encodeURIComponent(query)}&`;
+      if (category) url += `category=${encodeURIComponent(category)}&`;
+      if (tag) url += `tag=${encodeURIComponent(tag)}`;
+
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    };
+      const data = await response.json();
+      setPosts(data);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    }
+  };
 
-    getPosts();
-  }, []);
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch(`${baseURL}/api/categories`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setCategories(data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
 
-  if (loading) return <div>Loading posts...</div>;
-  if (error) return <div className="error">{error}</div>;
+  const fetchTags = async () => {
+    try {
+      const response = await fetch(`${baseURL}/api/tags`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setTags(data);
+    } catch (error) {
+      console.error("Error fetching tags:", error);
+    }
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    fetchPosts(searchQuery, selectedCategory, selectedTag);
+  };
 
   return (
-    <div className="container home-container">
-      <h1>The Mind Scape of Nicky</h1>
-      <nav>
-        <ul>
-          <li>
-            <Link to="/register" className="button">
-              Register
-            </Link>
-          </li>
-          <li>
-            <Link to="/login" className="button">
-              Login
-            </Link>
-          </li>
-          <li>
-            <Link to="/create" className="button">
-              Create New Post
-            </Link>
-          </li>
-        </ul>
-      </nav>
-      {posts.length === 0 ? (
-        <p>No posts available. Be the first to create a post!</p>
-      ) : (
-        <ul>
-          {posts.map((post) => (
-            <li key={post.id}>
-              <Link to={`/posts/${post.id}`}>
-                <h2>{post.title}</h2>
-              </Link>
+    <div className="home-container">
+      <div className="search-container">
+        <form onSubmit={handleSearch}>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search posts..."
+          />
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+          >
+            <option value="">All Categories</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.name}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+          <select
+            value={selectedTag}
+            onChange={(e) => setSelectedTag(e.target.value)}
+          >
+            <option value="">All Tags</option>
+            {tags.map((tag) => (
+              <option key={tag.id} value={tag.name}>
+                {tag.name}
+              </option>
+            ))}
+          </select>
+          <button type="submit">Search</button>
+        </form>
+      </div>
+      <div className="posts-container">
+        {posts.map((post) => (
+          <div key={post.id} className="post-card">
+            <Link to={`/post/${post.id}`}>
+              <h2>{post.title}</h2>
               {post.image_url && (
                 <img
-                  src={
-                    post.image_url.startsWith("http")
-                      ? post.image_url
-                      : `${import.meta.env.VITE_API_URL}${post.image_url}`
-                  }
+                  src={`${baseURL}${post.image_url}`}
                   alt={post.title}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "/path_to_default_image.jpg"; // Replace with your default image path
+                  }}
                 />
               )}
               <p>{post.content.substring(0, 100)}...</p>
-            </li>
-          ))}
-        </ul>
-      )}
+              <p>Category: {post.category_name}</p>
+              {post.tags && <p>Tags: {post.tags.join(", ")}</p>}
+            </Link>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
