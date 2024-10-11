@@ -1,45 +1,84 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Playfair+Display:wght@400;700&display=swap");
-
+/* App.css */
 :root {
-  --primary-color: #4a90e2;
-  --secondary-color: #f5f5f5;
-  --text-color: #333;
-  --shadow-color: rgba(0, 0, 0, 0.1);
+  --primary-color: #3498db;
+  --secondary-color: #2ecc71;
+  --background-light: #f5f5f5;
+  --background-dark: #2c3e50;
+  --text-light: #333;
+  --text-dark: #ecf0f1;
+  --transition-speed: 0.3s;
 }
 
 body {
-  font-family: "Roboto", sans-serif;
+  font-family: "Arial", sans-serif;
   line-height: 1.6;
-  color: var(--text-color);
-  background-color: var(--secondary-color);
   margin: 0;
   padding: 0;
+  transition: background-color var(--transition-speed),
+    color var(--transition-speed);
 }
 
-.App {
+.light-mode {
+  background-color: var(--background-light);
+  color: var(--text-light);
+}
+
+.dark-mode {
+  background-color: var(--background-dark);
+  color: var(--text-dark);
+}
+
+.container {
+  width: 90%;
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
 }
 
-h1,
-h2,
-h3 {
-  font-family: "Playfair Display", serif;
-  color: var(--primary-color);
-  text-shadow: 1px 1px 2px var(--shadow-color);
-}
-
 button {
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color var(--transition-speed),
+    transform var(--transition-speed);
 }
 
 button:hover {
-  background-color: darken(var(--primary-color), 10%);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .container {
+    width: 95%;
+    padding: 10px;
+  }
+}
+
+/* Animation for adding/removing comments */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+.comment-enter {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.comment-exit {
+  animation: fadeOut 0.5s ease-in;
 }

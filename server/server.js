@@ -40,6 +40,14 @@ const __dirname = path.dirname(__filename);
 // Serve static files from the "uploads" directory
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+// Serve Font Awesome files
+app.use(
+  "/webfonts",
+  express.static(
+    path.join(__dirname, "node_modules/@fortawesome/fontawesome-free/webfonts")
+  )
+);
+
 // Fetch all posts
 app.get("/api/posts", async (req, res) => {
   try {
@@ -87,8 +95,21 @@ app.get("/api/posts/:id", async (req, res) => {
 
 // Create a new post
 app.post("/api/posts", upload.single("image"), async (req, res) => {
-  const { title, content, category, tags } = req.body;
+  const { title, content, categoryId, tags } = req.body;
   const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+
+  // Handle tags parsing
+  let parsedTags = [];
+  if (tags) {
+    try {
+      parsedTags = JSON.parse(tags); // Parse tags if they are a string
+    } catch (e) {
+      console.error("Failed to parse tags:", e);
+      return res.status(400).json({ error: "Invalid tags format" });
+    }
+  }
+
+  console.log("Parsed tags:", parsedTags); // Log parsed tags
 
   try {
     // Start a transaction
@@ -97,13 +118,13 @@ app.post("/api/posts", upload.single("image"), async (req, res) => {
     // Insert the post
     const postResult = await pool.query(
       "INSERT INTO posts (title, content, category_id, image_url) VALUES ($1, $2, $3, $4) RETURNING *",
-      [title, content, category, imageUrl]
+      [title, content, categoryId, imageUrl]
     );
     const newPost = postResult.rows[0];
 
-    // Insert tags
-    if (tags && tags.length > 0) {
-      const tagValues = tags.map((tag) => `('${tag}')`).join(",");
+    // Check if parsedTags is an array and has elements
+    if (Array.isArray(parsedTags) && parsedTags.length > 0) {
+      const tagValues = parsedTags.map((tag) => `('${tag}')`).join(",");
       await pool.query(`
         INSERT INTO tags (name)
         VALUES ${tagValues}
@@ -113,7 +134,7 @@ app.post("/api/posts", upload.single("image"), async (req, res) => {
       // Get tag IDs
       const tagResult = await pool.query(
         "SELECT id FROM tags WHERE name = ANY($1)",
-        [tags]
+        [parsedTags]
       );
       const tagIds = tagResult.rows.map((row) => row.id);
 
@@ -145,10 +166,8 @@ app.delete("/api/posts/:id", async (req, res) => {
     // Start a transaction
     await pool.query("BEGIN");
 
-    // Delete associated comments
+    // Delete associated comments and post_tags
     await pool.query("DELETE FROM comments WHERE post_id = $1", [id]);
-
-    // Delete associated post_tags
     await pool.query("DELETE FROM post_tags WHERE post_id = $1", [id]);
 
     // Delete the post
@@ -373,7 +392,7 @@ app.post("/api/tags", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// Start the server
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });

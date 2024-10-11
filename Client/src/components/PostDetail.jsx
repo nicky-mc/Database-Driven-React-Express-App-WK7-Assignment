@@ -1,45 +1,46 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import PropTypes from "prop-types";
 import "./PostDetail.css";
 
-const PostDetail = () => {
+function PostDetail({ theme }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
-
-  const baseURL = import.meta.env.VITE_API_URL;
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal
+  const baseURL = import.meta.env.VITE_API_URL || "http://localhost:5001";
 
   useEffect(() => {
-    const fetchPost = async () => {
+    const fetchPostAndComments = async () => {
+      setIsLoading(true);
       try {
-        const response = await fetch(`${baseURL}/api/posts/${id}`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setPost(data);
-      } catch (error) {
-        console.error("Error fetching post:", error);
+        const [postResponse, commentsResponse] = await Promise.all([
+          fetch(`${baseURL}/api/posts/${id}`),
+          fetch(`${baseURL}/api/posts/${id}/comments`),
+        ]);
+
+        if (!postResponse.ok) throw new Error("Failed to fetch post");
+        if (!commentsResponse.ok) throw new Error("Failed to fetch comments");
+
+        const postData = await postResponse.json();
+        const commentsData = await commentsResponse.json();
+
+        setPost(postData);
+        setComments(commentsData);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    const fetchComments = async () => {
-      try {
-        const response = await fetch(`${baseURL}/api/posts/${id}/comments`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setComments(data);
-      } catch (error) {
-        console.error("Error fetching comments:", error);
-      }
-    };
-
-    fetchPost();
-    fetchComments();
+    fetchPostAndComments();
   }, [id, baseURL]);
 
   const handleLike = async () => {
@@ -47,13 +48,11 @@ const PostDetail = () => {
       const response = await fetch(`${baseURL}/api/posts/${id}/like`, {
         method: "POST",
       });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error("Failed to like post");
       const data = await response.json();
-      setPost({ ...post, likes: data.likes });
-    } catch (error) {
-      console.error("Error liking post:", error);
+      setPost((prevPost) => ({ ...prevPost, likes: data.likes }));
+    } catch (err) {
+      setError(err.message);
     }
   };
 
@@ -62,12 +61,10 @@ const PostDetail = () => {
       const response = await fetch(`${baseURL}/api/posts/${id}`, {
         method: "DELETE",
       });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error("Failed to delete post");
       navigate("/");
-    } catch (error) {
-      console.error("Error deleting post:", error);
+    } catch (err) {
+      setError(err.message);
     }
   };
 
@@ -76,19 +73,15 @@ const PostDetail = () => {
     try {
       const response = await fetch(`${baseURL}/api/posts/${id}/comments`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: newComment }),
       });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error("Failed to add comment");
       const data = await response.json();
-      setComments([data, ...comments]);
+      setComments((prevComments) => [data, ...prevComments]);
       setNewComment("");
-    } catch (error) {
-      console.error("Error adding comment:", error);
+    } catch (err) {
+      setError(err.message);
     }
   };
 
@@ -97,12 +90,12 @@ const PostDetail = () => {
       const response = await fetch(`${baseURL}/api/comments/${commentId}`, {
         method: "DELETE",
       });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      setComments(comments.filter((comment) => comment.id !== commentId));
-    } catch (error) {
-      console.error("Error deleting comment:", error);
+      if (!response.ok) throw new Error("Failed to delete comment");
+      setComments((prevComments) =>
+        prevComments.filter((comment) => comment.id !== commentId)
+      );
+    } catch (err) {
+      setError(err.message);
     }
   };
 
@@ -114,81 +107,54 @@ const PostDetail = () => {
           method: "POST",
         }
       );
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error("Failed to like comment");
       const data = await response.json();
-      setComments(
-        comments.map((comment) =>
+      setComments((prevComments) =>
+        prevComments.map((comment) =>
           comment.id === commentId ? { ...comment, likes: data.likes } : comment
         )
       );
-    } catch (error) {
-      console.error("Error liking comment:", error);
+    } catch (err) {
+      setError(err.message);
     }
   };
 
-  const handleCommentDislike = async (commentId) => {
-    try {
-      const response = await fetch(
-        `${baseURL}/api/comments/${commentId}/dislike`,
-        {
-          method: "POST",
-        }
-      );
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      setComments(
-        comments.map((comment) =>
-          comment.id === commentId
-            ? { ...comment, dislikes: data.dislikes }
-            : comment
-        )
-      );
-    } catch (error) {
-      console.error("Error disliking comment:", error);
-    }
-  };
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
-  if (!post) {
-    return <div>Loading...</div>;
-  }
+  if (isLoading)
+    return <div className={`loading ${theme}-mode`}>Loading...</div>;
+  if (error) return <div className={`error ${theme}-mode`}>Error: {error}</div>;
+  if (!post)
+    return <div className={`not-found ${theme}-mode`}>Post not found</div>;
 
   return (
-    <div className="post-detail-container">
-      <h1>{post.title}</h1>
-      {post.image_url && (
-        <img
-          src={`${baseURL}${post.image_url}`}
-          alt={post.title}
-          onError={(e) => {
-            e.target.onerror = null;
-            e.target.src = "/path_to_default_image.jpg";
-          }}
-        />
-      )}
-      <p>{post.content}</p>
-      <p>Category: {post.category_name}</p>
-      {post.tags && post.tags.length > 0 && (
-        <div>
-          <h3>Tags:</h3>
-          <ul>
-            {post.tags.map((tag, index) => (
-              <li key={index}>{tag}</li>
-            ))}
-          </ul>
+    <div className={`post-detail-container ${theme}-mode`}>
+      <div className="post-content">
+        {post.image_url && (
+          <img
+            src={`${baseURL}${post.image_url}`}
+            alt={post.title}
+            onClick={openModal} // Open modal on click
+          />
+        )}
+        <div className="post-text">
+          <h1>{post.title}</h1>
+          <p>{post.content}</p>
         </div>
-      )}
+      </div>
       <div className="post-actions">
-        <button onClick={handleLike}>Like ({post.likes})</button>
-        <button onClick={handleDelete}>Delete Post</button>
+        <button onClick={handleLike}>
+          <FontAwesomeIcon icon="thumbs-up" /> Like ({post.likes})
+        </button>
+        <button onClick={handleDelete}>
+          <FontAwesomeIcon icon="trash" /> Delete
+        </button>
       </div>
 
       <div className="comments-section">
         <h2>Comments</h2>
-        <form onSubmit={handleCommentSubmit}>
+        <form onSubmit={handleCommentSubmit} className="comment-form">
           <textarea
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
@@ -197,31 +163,46 @@ const PostDetail = () => {
           />
           <button type="submit">Add Comment</button>
         </form>
-        {comments.map((comment) => (
-          <div key={comment.id} className="comment">
-            <p>{comment.content}</p>
-            <div className="comment-actions">
-              <button
-                className="like-button"
-                onClick={() => handleCommentLike(comment.id)}
-              >
-                👍 <span className="like-count">{comment.likes}</span>
-              </button>
-              <button
-                className="dislike-button"
-                onClick={() => handleCommentDislike(comment.id)}
-              >
-                👎 <span className="dislike-count">{comment.dislikes}</span>
-              </button>
-              <button onClick={() => handleCommentDelete(comment.id)}>
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
+        <TransitionGroup>
+          {comments.map((comment) => (
+            <CSSTransition key={comment.id} timeout={500} classNames="comment">
+              <div className="comment">
+                <p>{comment.content}</p>
+                <div className="comment-actions">
+                  <button onClick={() => handleCommentLike(comment.id)}>
+                    <FontAwesomeIcon icon="thumbs-up" /> Like ({comment.likes})
+                  </button>
+                  <button onClick={() => handleCommentDelete(comment.id)}>
+                    <FontAwesomeIcon icon="trash" /> Delete
+                  </button>
+                </div>
+              </div>
+            </CSSTransition>
+          ))}
+        </TransitionGroup>
       </div>
+
+      {/* Modal for the image */}
+      {isModalOpen && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="close-button" onClick={closeModal}>
+              &times; {/* Close button */}
+            </button>
+            <img
+              src={`${baseURL}${post.image_url}`}
+              alt={post.title}
+              className="modal-image"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
+}
+
+PostDetail.propTypes = {
+  theme: PropTypes.string.isRequired,
 };
 
 export default PostDetail;

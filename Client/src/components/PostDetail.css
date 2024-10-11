@@ -1,150 +1,152 @@
+/* Use a more readable font */
+body {
+  font-family: Arial, sans-serif; /* Example of a readable font */
+  line-height: 1.6; /* Improve readability with line height */
+}
+
 .post-detail-container {
   max-width: 800px;
   margin: 0 auto;
-  padding: 40px;
-  background-color: #fff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
 }
 
 .post-detail-container h1 {
-  font-size: 2.5em;
-  color: #333;
-  margin-bottom: 20px;
+  margin-top: 0;
+  font-size: 2rem; /* Increase title size for prominence */
 }
 
-.post-detail-container img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+.post-content {
+  overflow: hidden; /* Ensure the container clears the floated elements */
 }
 
-.post-detail-container p {
-  font-size: 1.1em;
-  line-height: 1.6;
-  color: #444;
-  margin-bottom: 20px;
+.post-content img {
+  float: left; /* Floats the image to the left */
+  width: 200px; /* Set a fixed width for the image */
+  height: auto; /* Maintain aspect ratio */
+  margin-right: 20px; /* Space between the image and text */
+  margin-bottom: 10px; /* Space below the image for text */
+  cursor: pointer; /* Indicate that the image can be clicked */
+}
+
+.post-content .post-text {
+  /* No need for flex properties since we're using float */
 }
 
 .post-actions {
   display: flex;
   gap: 10px;
-  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 .post-actions button {
-  padding: 10px 20px;
+  background-color: var(--primary-color);
+  color: #fff;
   border: none;
-  background-color: #007bff;
-  color: white;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  padding: 8px 12px; /* Slightly larger padding */
+  border-radius: 5px;
+  transition: background-color var(--transition-speed);
+  cursor: pointer; /* Indicate clickable buttons */
 }
 
 .post-actions button:hover {
-  background-color: #0056b3;
+  background-color: var(--secondary-color);
 }
 
 .comments-section {
   margin-top: 40px;
-  border-top: 1px solid #eee;
-  padding-top: 20px;
 }
 
-.comments-section h2 {
-  font-size: 1.8em;
-  color: #333;
-  margin-bottom: 20px;
-}
-
-.comments-section form {
+.comment-form {
   display: flex;
-  flex-direction: column;
   gap: 10px;
   margin-bottom: 20px;
 }
 
-.comments-section textarea {
-  padding: 15px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  width: 100%;
-  height: 100px;
-  font-size: 1em;
+.comment-form textarea {
+  flex-grow: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
   resize: vertical;
 }
 
-.comments-section button {
-  padding: 10px 20px;
+.comment-form button {
+  background-color: var(--primary-color);
+  color: #fff;
   border: none;
-  background-color: #28a745;
-  color: white;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  padding: 8px 12px; /* Slightly larger padding */
+  border-radius: 5px;
+  transition: background-color var(--transition-speed);
+  cursor: pointer; /* Indicate clickable button */
 }
 
-.comments-section button:hover {
-  background-color: #218838;
+.comment-form button:hover {
+  background-color: var(--secondary-color);
 }
 
 .comment {
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 15px;
-  margin-bottom: 15px;
-}
-
-.comment p {
-  margin: 0 0 10px 0;
-  font-size: 1em;
-  line-height: 1.4;
+  background-color: #f5f5f5;
+  padding: 15px; /* Increased padding for comments */
+  border-radius: 15px;
+  margin-bottom: 10px;
+  border: solid 1px #ccc; /* Add border for separation */
 }
 
 .comment-actions {
   display: flex;
-  gap: 10px;
+  justify-content: space-between; /* Space between buttons */
+  margin-top: 10px;
 }
 
 .comment-actions button {
-  padding: 5px 10px;
+  background-color: var(--primary-color);
+  color: #fff;
   border: none;
-  background-color: #6c757d;
-  color: white;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  padding: 5px 10px;
+  border-radius: 5px;
+  transition: background-color var(--transition-speed);
+  cursor: pointer; /* Indicate clickable button */
 }
 
 .comment-actions button:hover {
-  background-color: #5a6268;
+  background-color: var(--secondary-color);
+}
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure it overlays above other content */
 }
 
-.like-button,
-.dislike-button {
-  background-color: transparent;
+.modal-content {
+  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+  overflow: hidden;
+}
+
+.modal-image {
+  max-width: 100%;
+  height: auto; /* Maintain aspect ratio */
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
   border: none;
+  color: white;
+  font-size: 2rem;
   cursor: pointer;
-  font-size: 1.2em;
-  color: #6c757d;
-  transition: color 0.3s ease;
+  z-index: 1001; /* Ensure the button is above the modal */
 }
 
-.like-button:hover {
-  color: #28a745;
-}
-
-.dislike-button:hover {
-  color: #dc3545;
-}
-
-.like-count,
-.dislike-count {
-  font-size: 0.9em;
-  color: #6c757d;
-  margin-left: 5px;
+.close-button:hover {
+  color: #ff4d4d; /* Change color on hover for visibility */
 }

@@ -1,131 +1,66 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import PropTypes from "prop-types";
 import "./Home.css";
 
-const Home = () => {
+function Home({ theme }) {
   const [posts, setPosts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [tags, setTags] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedTag, setSelectedTag] = useState("");
-
+  const [loading, setLoading] = useState(true); // Loading state
+  const [error, setError] = useState(null); // Error state
   const baseURL = import.meta.env.VITE_API_URL || "http://localhost:5001";
 
   useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const response = await fetch(`${baseURL}/api/posts`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setPosts(data);
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+        setError(error.message);
+      } finally {
+        setLoading(false); // Stop loading
+      }
+    };
+
     fetchPosts();
-    fetchCategories();
-    fetchTags();
   }, [baseURL]);
 
-  const fetchPosts = async (query = "", category = "", tag = "") => {
-    try {
-      let url = `${baseURL}/api/search?`;
-      if (query) url += `query=${encodeURIComponent(query)}&`;
-      if (category) url += `category=${encodeURIComponent(category)}&`;
-      if (tag) url += `tag=${encodeURIComponent(tag)}`;
+  if (loading) {
+    return <div>Loading posts...</div>; // Show loading message
+  }
 
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      setPosts(data);
-    } catch (error) {
-      console.error("Error fetching posts:", error);
-    }
-  };
-
-  const fetchCategories = async () => {
-    try {
-      const response = await fetch(`${baseURL}/api/categories`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      setCategories(data);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-    }
-  };
-
-  const fetchTags = async () => {
-    try {
-      const response = await fetch(`${baseURL}/api/tags`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      setTags(data);
-    } catch (error) {
-      console.error("Error fetching tags:", error);
-    }
-  };
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    fetchPosts(searchQuery, selectedCategory, selectedTag);
-  };
+  if (error) {
+    return <div>Error loading posts: {error}</div>; // Show error message
+  }
 
   return (
-    <div className="home-container">
-      <div className="search-container">
-        <form onSubmit={handleSearch}>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search posts..."
-          />
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-          >
-            <option value="">All Categories</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.name}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-          <select
-            value={selectedTag}
-            onChange={(e) => setSelectedTag(e.target.value)}
-          >
-            <option value="">All Tags</option>
-            {tags.map((tag) => (
-              <option key={tag.id} value={tag.name}>
-                {tag.name}
-              </option>
-            ))}
-          </select>
-          <button type="submit">Search</button>
-        </form>
-      </div>
-      <div className="posts-container">
-        {posts.map((post) => (
+    <div className={`home-container ${theme}-mode`}>
+      {posts.length === 0 ? (
+        <div>No posts available.</div> // Message when no posts are found
+      ) : (
+        posts.map((post) => (
           <div key={post.id} className="post-card">
-            <Link to={`/post/${post.id}`}>
+            {post.image_url && (
+              <img src={`${baseURL}${post.image_url}`} alt={post.title} />
+            )}
+            <div className="post-card-content">
               <h2>{post.title}</h2>
-              {post.image_url && (
-                <img
-                  src={`${baseURL}${post.image_url}`}
-                  alt={post.title}
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = "/path_to_default_image.jpg"; // Replace with your default image path
-                  }}
-                />
-              )}
               <p>{post.content.substring(0, 100)}...</p>
-              <p>Category: {post.category_name}</p>
-              {post.tags && <p>Tags: {post.tags.join(", ")}</p>}
-            </Link>
+              <Link to={`/post/${post.id}`}>Read more</Link>
+            </div>
           </div>
-        ))}
-      </div>
+        ))
+      )}
     </div>
   );
+}
+
+Home.propTypes = {
+  theme: PropTypes.string.isRequired,
 };
 
 export default Home;
