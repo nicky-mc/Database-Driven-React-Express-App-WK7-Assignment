@@ -1,6 +1,6 @@
 /* Use a more readable font */
 body {
-  font-family: Arial, sans-serif; /* Example of a readable font */
+  font-family: Roboto; /* Example of a readable font */
   line-height: 1.6; /* Improve readability with line height */
 }
 
@@ -12,9 +12,16 @@ body {
 .post-detail-container h1 {
   margin-top: 0;
   font-size: 2rem; /* Increase title size for prominence */
+  color: #6b6565;
+  text-shadow: 1px 1px 1px #ccc; /* Add subtle shadow for contrast */
+  border: solid 3px #ccc; /* Add border for separation */
+  display: inline-block; /* Prevents text from stretching */
+  text-align: center; /* Center the title */
 }
 
 .post-content {
+  display: flex; /* Use flexbox layout */
+  align-items: flex-start; /* Align items at the start */
   overflow: hidden; /* Ensure the container clears the floated elements */
 }
 
@@ -28,7 +35,10 @@ body {
 }
 
 .post-content .post-text {
-  /* No need for flex properties since we're using float */
+  flex-grow: 1; /* Allow the text to take remaining space */
+  display: flex;
+  flex-direction: column; /* Stack the content vertically */
+  justify-content: space-between; /* Distribute space between items */
 }
 
 .post-actions {
@@ -86,9 +96,8 @@ body {
 .comment {
   background-color: #f5f5f5;
   padding: 15px; /* Increased padding for comments */
-  border-radius: 15px;
+  border-radius: 5px;
   margin-bottom: 10px;
-  border: solid 1px #ccc; /* Add border for separation */
 }
 
 .comment-actions {
@@ -110,6 +119,8 @@ body {
 .comment-actions button:hover {
   background-color: var(--secondary-color);
 }
+
+/* Modal styles */
 .modal-overlay {
   position: fixed;
   top: 0;
