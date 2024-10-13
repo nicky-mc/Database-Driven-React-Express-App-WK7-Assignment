@@ -89,6 +89,7 @@ function CreatePost({ theme }) {
             id="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            spellCheck="true"
             required
           />
         </div>
@@ -98,6 +99,7 @@ function CreatePost({ theme }) {
             id="content"
             value={content}
             onChange={(e) => setContent(e.target.value)}
+            spellCheck="true"
             required
           />
         </div>
