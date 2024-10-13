@@ -7,7 +7,11 @@
   justify-content: space-between;
   align-items: center;
 }
-
+.dark-mode .navbar {
+  background-color: black;
+  color: wheat;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
 .nav-container {
   display: flex;
   align-items: center;
