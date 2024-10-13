@@ -12,4 +12,7 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    chunkSizeWarningLimit: 3000, // Adjust the chunk size warning limit to 3000 kB
+  },
 });

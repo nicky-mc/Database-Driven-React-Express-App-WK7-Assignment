@@ -7,7 +7,9 @@ function Home({ theme }) {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState(null); // Error state
-  const baseURL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+  const baseURL =
+    import.meta.env.VITE_API_URL ||
+    "https://database-driven-react-express-app-wk7.onrender.com";
 
   useEffect(() => {
     const fetchPosts = async () => {

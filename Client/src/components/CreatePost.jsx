@@ -11,7 +11,9 @@ function CreatePost({ theme }) {
   const [imageFile, setImageFile] = useState(null);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const baseURL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+  const baseURL =
+    import.meta.env.VITE_API_URL ||
+    "https://database-driven-react-express-app-wk7.onrender.com";
 
   useEffect(() => {
     const fetchCategories = async () => {
