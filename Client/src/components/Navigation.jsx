@@ -7,10 +7,11 @@ import "./Navigation.css";
 function Navigation({ theme, toggleTheme }) {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = React.useState("");
-
+  const baseURL =
+    import.meta.env.VITE_API_URL || "https://nickys-space-server.onrender.com";
   const handleSearch = (e) => {
     e.preventDefault();
-    navigate(`/search?q=${searchTerm}`);
+    navigate(`${baseURL}/search?q=${searchTerm}`);
   };
 
   return (
