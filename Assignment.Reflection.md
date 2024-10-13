@@ -93,4 +93,3 @@ The most complex thing I attempted was a login that included authorization, but 
 ![Screenshot 2024-10-13 at 21 35 55](https://github.com/user-attachments/assets/2da5ec7a-907c-4c84-bb58-3f97ae80f2dc)
 
 ![Screenshot 2024-10-13 at 21 41 51](https://github.com/user-attachments/assets/6d274240-fc22-4f3f-8427-9140f921af89)
-
