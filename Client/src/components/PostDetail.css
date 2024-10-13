@@ -161,3 +161,8 @@ body {
 .close-button:hover {
   color: #ff4d4d; /* Change color on hover for visibility */
 }
+.dark-mode .post-detail-container {
+  background-color: black;
+  color: wheat;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
