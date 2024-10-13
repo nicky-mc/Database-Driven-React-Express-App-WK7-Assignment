@@ -13,7 +13,7 @@ function Navigation({ theme, toggleTheme }) {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchTerm.trim() === "") return; // Prevent empty search
-    navigate(`${baseURL}/search?q=${searchTerm}`);
+    navigate(`/search?q=${searchTerm}`); // Adjusted to navigate to a search route
   };
 
   return (
