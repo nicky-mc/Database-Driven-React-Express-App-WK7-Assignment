@@ -5,7 +5,7 @@ import Navigation from "./components/Navigation";
 import Home from "./components/Home";
 import PostDetail from "./components/PostDetail";
 import CreatePost from "./components/CreatePost";
-import SearchResults from "./components/SearchResults"; // Import SearchResults component
+import SearchResults from "./components/SearchResults";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fab } from "@fortawesome/free-brands-svg-icons";
 import {
