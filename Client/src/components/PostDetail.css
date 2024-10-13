@@ -1,9 +1,3 @@
-/* Use a more readable font */
-body {
-  font-family: Roboto; /* Example of a readable font */
-  line-height: 1.6; /* Improve readability with line height */
-}
-
 .post-detail-container {
   max-width: 800px;
   margin: 0 auto;
@@ -11,34 +5,34 @@ body {
 
 .post-detail-container h1 {
   margin-top: 0;
-  font-size: 2rem; /* Increase title size for prominence */
+  font-size: 2rem;
   color: #6b6565;
-  text-shadow: 1px 1px 1px #ccc; /* Add subtle shadow for contrast */
-  border: solid 3px #ccc; /* Add border for separation */
-  display: inline-block; /* Prevents text from stretching */
-  text-align: center; /* Center the title */
+  text-shadow: 1px 1px 1px #ccc;
+  border: solid 3px #ccc;
+  display: inline-block;
+  text-align: center;
 }
 
 .post-content {
-  display: flex; /* Use flexbox layout */
-  align-items: flex-start; /* Align items at the start */
-  overflow: hidden; /* Ensure the container clears the floated elements */
+  display: flex;
+  align-items: flex-start;
+  overflow: hidden;
 }
 
 .post-content img {
-  float: left; /* Floats the image to the left */
-  width: 200px; /* Set a fixed width for the image */
-  height: auto; /* Maintain aspect ratio */
-  margin-right: 20px; /* Space between the image and text */
-  margin-bottom: 10px; /* Space below the image for text */
-  cursor: pointer; /* Indicate that the image can be clicked */
+  float: left;
+  width: 200px;
+  height: auto;
+  margin-right: 20px;
+  margin-bottom: 10px;
+  cursor: pointer;
 }
 
 .post-content .post-text {
-  flex-grow: 1; /* Allow the text to take remaining space */
+  flex-grow: 1;
   display: flex;
-  flex-direction: column; /* Stack the content vertically */
-  justify-content: space-between; /* Distribute space between items */
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .post-actions {
@@ -51,10 +45,10 @@ body {
   background-color: var(--primary-color);
   color: #fff;
   border: none;
-  padding: 8px 12px; /* Slightly larger padding */
+  padding: 8px 12px;
   border-radius: 5px;
   transition: background-color var(--transition-speed);
-  cursor: pointer; /* Indicate clickable buttons */
+  cursor: pointer;
 }
 
 .post-actions button:hover {
@@ -83,10 +77,10 @@ body {
   background-color: var(--primary-color);
   color: #fff;
   border: none;
-  padding: 8px 12px; /* Slightly larger padding */
+  padding: 8px 12px;
   border-radius: 5px;
   transition: background-color var(--transition-speed);
-  cursor: pointer; /* Indicate clickable button */
+  cursor: pointer;
 }
 
 .comment-form button:hover {
@@ -95,14 +89,14 @@ body {
 
 .comment {
   background-color: #f5f5f5;
-  padding: 15px; /* Increased padding for comments */
+  padding: 15px;
   border-radius: 5px;
   margin-bottom: 10px;
 }
 
 .comment-actions {
   display: flex;
-  justify-content: space-between; /* Space between buttons */
+  justify-content: space-between;
   margin-top: 10px;
 }
 
@@ -113,25 +107,24 @@ body {
   padding: 5px 10px;
   border-radius: 5px;
   transition: background-color var(--transition-speed);
-  cursor: pointer; /* Indicate clickable button */
+  cursor: pointer;
 }
 
 .comment-actions button:hover {
   background-color: var(--secondary-color);
 }
 
-/* Modal styles */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
+  background-color: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000; /* Ensure it overlays above other content */
+  z-index: 1000;
 }
 
 .modal-content {
@@ -143,7 +136,7 @@ body {
 
 .modal-image {
   max-width: 100%;
-  height: auto; /* Maintain aspect ratio */
+  height: auto;
 }
 
 .close-button {
@@ -155,19 +148,58 @@ body {
   color: white;
   font-size: 2rem;
   cursor: pointer;
-  z-index: 1001; /* Ensure the button is above the modal */
+  z-index: 1001;
 }
 
 .close-button:hover {
-  color: #ff4d4d; /* Change color on hover for visibility */
+  color: #ff4d4d;
 }
+
 .dark-mode .post-detail-container {
   background-color: black;
   color: wheat;
   text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
 }
+
 .dark-mode .comment {
   background-color: #333;
   color: wheat;
   text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Responsive adjustments for PostDetail */
+@media (max-width: 768px) {
+  .post-detail-container {
+    padding: 10px;
+  }
+
+  .post-content {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .post-content img {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+
+  .post-actions {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .comment-form {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .comment-form textarea {
+    width: 100%;
+  }
+
+  .comment-actions {
+    flex-direction: column;
+    gap: 5px;
+  }
 }
