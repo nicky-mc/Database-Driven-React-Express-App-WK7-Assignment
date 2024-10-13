@@ -252,7 +252,14 @@ app.get("/api/search", async (req, res) => {
       " GROUP BY posts.id, categories.name ORDER BY posts.created_at DESC";
 
     const result = await pool.query(sqlQuery, queryParams);
-    res.json(result.rows);
+
+    // Map results to include full image URL
+    const posts = result.rows.map((post) => ({
+      ...post,
+      image_url: post.image_url ? `${baseURL}${post.image_url}` : null,
+    }));
+
+    res.json(posts);
   } catch (error) {
     console.error("Error searching posts:", error.message);
     res.status(500).json({ error: "Error searching posts" });

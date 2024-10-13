@@ -9,8 +9,10 @@ function Navigation({ theme, toggleTheme }) {
   const [searchTerm, setSearchTerm] = React.useState("");
   const baseURL =
     import.meta.env.VITE_API_URL || "https://nickys-space-server.onrender.com";
+
   const handleSearch = (e) => {
     e.preventDefault();
+    if (searchTerm.trim() === "") return; // Prevent empty search
     navigate(`${baseURL}/search?q=${searchTerm}`);
   };
 
