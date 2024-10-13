@@ -10,11 +10,7 @@ function Navigation({ theme, toggleTheme }) {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    navigate(
-      `${import.meta.env.VITE_API_URL}/search?q=${encodeURIComponent(
-        searchTerm
-      )}`
-    );
+    navigate(`/search?q=${searchTerm}`);
   };
 
   return (
