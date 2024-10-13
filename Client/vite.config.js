@@ -14,13 +14,19 @@ export default defineConfig({
     },
   },
   build: {
-    chunkSizeWarningLimit: 3000, // Adjust the chunk size warning limit to 3000 kB
+    chunkSizeWarningLimit: 3000,
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, "index.html"),
+      },
+    },
+    outDir: "dist",
   },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      Client: path.resolve(__dirname, "./Client"),
+      Client: path.resolve(__dirname, "./"),
     },
   },
-  base: "./", // This ensures that asset URLs are relative
+  base: "",
 });
