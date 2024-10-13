@@ -219,8 +219,9 @@ app.get("/api/tags", async (req, res) => {
 });
 
 // Search posts
+// Search posts
 app.get("/api/search", async (req, res) => {
-  const { query, category, tag } = req.query;
+  const { q, category, tag } = req.query;
   try {
     let sqlQuery = `
       SELECT DISTINCT posts.*, categories.name as category_name,
@@ -233,8 +234,8 @@ app.get("/api/search", async (req, res) => {
     `;
     const queryParams = [];
 
-    if (query) {
-      queryParams.push(`%${query}%`);
+    if (q) {
+      queryParams.push(`%${q}%`);
       sqlQuery += ` AND (posts.title ILIKE $${queryParams.length} OR posts.content ILIKE $${queryParams.length})`;
     }
 
