@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import "./SearchResults.css";
 
 const SearchResults = ({ theme }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const query = new URLSearchParams(location.search).get("q");
   const [results, setResults] = useState([]);
 
@@ -31,13 +32,19 @@ const SearchResults = ({ theme }) => {
     }
   }, [query]);
 
+  const handleResultClick = (id) => {
+    navigate(`/post/${id}`);
+  };
+
   return (
     <div className={`search-results ${theme === "dark" ? "dark-mode" : ""}`}>
       <h1>Search Results for: {query}</h1>
       {results.length > 0 ? (
         <ul>
           {results.map((result) => (
-            <li key={result.id}>{result.title}</li> // Adjust as needed for your data structure
+            <li key={result.id} onClick={() => handleResultClick(result.id)}>
+              {result.title}
+            </li>
           ))}
         </ul>
       ) : (
