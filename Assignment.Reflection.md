@@ -94,8 +94,3 @@ The most complex thing I attempted was a login that included authorization, but 
 
 ![Screenshot 2024-10-13 at 21 41 51](https://github.com/user-attachments/assets/6d274240-fc22-4f3f-8427-9140f921af89)
 
-## Planning
-
-<img width="1009" alt="Screenshot 2024-10-13 at 20 57 56" src="https://github.com/user-attachments/assets/f59d1e29-3a02-4993-9cc6-52265eef83cc">
-<img width="1345" alt="Screenshot 2024-10-13 at 21 35 55" src="https://github.com/user-attachments/assets/2da5ec7a-907c-4c84-bb58-3f97ae80f2dc">
-<img width="479" alt="Screenshot 2024-10-13 at 21 41 51" src="https://github.com/user-attachments/assets/6d274240-fc22-4f3f-8427-9140f921af89">
