@@ -9,8 +9,7 @@ function Home({ theme }) {
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState(null); // Error state
   const baseURL =
-    import.meta.env.VITE_API_URL ||
-    "https://database-driven-react-express-app-wk7.onrender.com";
+    import.meta.env.VITE_API_URL || "https://nickys-space-server.onrender.com";
 
   useEffect(() => {
     const fetchPosts = async () => {

@@ -16,8 +16,7 @@ function PostDetail({ theme }) {
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false); // State for modal
   const baseURL =
-    import.meta.env.VITE_API_URL ||
-    "https://database-driven-react-express-app-wk7.onrender.com";
+    import.meta.env.VITE_API_URL || "https://nickys-space-server.onrender.com";
 
   useEffect(() => {
     const fetchPostAndComments = async () => {

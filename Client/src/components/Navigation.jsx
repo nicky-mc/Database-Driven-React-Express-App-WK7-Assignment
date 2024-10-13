@@ -17,7 +17,7 @@ function Navigation({ theme, toggleTheme }) {
     <nav className="navbar">
       <div className="nav-container">
         <Link to="/" className="nav-logo">
-          Blog App
+          Nerd Girl Brain Dumping Zone
         </Link>
         <div className="nav-links">
           <Link to="/">Home</Link>
