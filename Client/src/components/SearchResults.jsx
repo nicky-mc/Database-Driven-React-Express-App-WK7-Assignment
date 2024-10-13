@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import PropTypes from "prop-types"; // Import PropTypes
-import "./SearchResults.css"; // Import the CSS file
+import PropTypes from "prop-types";
+import "./SearchResults.css";
 
 const SearchResults = ({ theme }) => {
-  // Accept theme as prop
   const location = useLocation();
   const query = new URLSearchParams(location.search).get("q");
   const [results, setResults] = useState([]);
@@ -13,8 +12,13 @@ const SearchResults = ({ theme }) => {
     const fetchResults = async () => {
       try {
         const response = await fetch(
-          `https://nickys-space-server.onrender.com/api/search?query=${query}`
+          `https://nickys-space-server.onrender.com/api/search?query=${encodeURIComponent(
+            query
+          )}`
         );
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         setResults(data);
       } catch (error) {
@@ -43,9 +47,8 @@ const SearchResults = ({ theme }) => {
   );
 };
 
-// Add PropTypes validation
 SearchResults.propTypes = {
-  theme: PropTypes.string.isRequired, // Validate that theme is a required string
+  theme: PropTypes.string.isRequired,
 };
 
 export default SearchResults;

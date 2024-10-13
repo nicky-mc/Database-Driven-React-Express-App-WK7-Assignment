@@ -30,6 +30,7 @@ function Navigation({ theme, toggleTheme }) {
             placeholder="Search..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            spellCheck="true" // Enable spell check
           />
           <button type="submit">
             <FontAwesomeIcon icon="search" />
