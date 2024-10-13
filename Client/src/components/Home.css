@@ -48,3 +48,8 @@
 .post-card-content a:hover {
   background-color: var(--secondary-color);
 }
+/* Dark mode styling */
+.dark-mode .post-card {
+  background-color: black;
+  color: white;
+}
