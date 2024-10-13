@@ -7,13 +7,11 @@ import "./Navigation.css";
 function Navigation({ theme, toggleTheme }) {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = React.useState("");
-  const baseURL =
-    import.meta.env.VITE_API_URL || "https://nickys-space-server.onrender.com";
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchTerm.trim() === "") return; // Prevent empty search
-    navigate(`/search?q=${searchTerm}`); // Adjusted to navigate to a search route
+    navigate(`/search?q=${encodeURIComponent(searchTerm)}`); // Navigate to the search route with encoded search term
   };
 
   return (

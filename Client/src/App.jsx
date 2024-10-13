@@ -1,5 +1,5 @@
 import "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect } from "react"; // Corrected import statement
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Navigation from "./components/Navigation";
 import Home from "./components/Home";
