@@ -33,6 +33,11 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  word-wrap: break-word; /* Break long words */
+  overflow-wrap: break-word; /* Break long words */
+  white-space: pre-wrap; /* Preserve whitespace and wrap text */
+  max-width: 100%; /* Ensure content doesn't overflow */
+  overflow: hidden; /* Hide any overflowing content */
 }
 
 .post-actions {
