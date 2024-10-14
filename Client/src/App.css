@@ -98,3 +98,12 @@ body {
   font-family: Roboto;
   line-height: 1.6;
 }
+
+/* Ensure PostDetail text content doesn't disappear off the right of the page */
+.post-detail-container .post-content {
+  word-wrap: break-word; /* Break long words */
+  overflow-wrap: break-word; /* Break long words */
+  white-space: pre-wrap; /* Preserve whitespace and wrap text */
+  max-width: 100%; /* Ensure content doesn't overflow */
+  overflow: hidden; /* Hide any overflowing content */
+}
